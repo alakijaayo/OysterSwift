@@ -27,6 +27,19 @@ class OystercardTests: XCTestCase {
         sut.deduct(money: 5)
         XCTAssertEqual(sut.myBalance(), 5)
     }
+    
+    func testIfCardInJourney() {
+        sut.touch_in("Aldgate")
+        XCTAssertEqual(sut.in_journey, true)
+    }
+    
+    func testCardIsTouchedIn() {
+        XCTAssertEqual(sut.touch_in("Aldgate"), "You touched in at Aldgate")
+    }
+    
+    func testCardIsTouchedOut() {
+        XCTAssertEqual(sut.touch_out("Aldgate East"), "You touched out at Aldgate East")
+    }
 }
 
 OystercardTests.defaultTestSuite.run()

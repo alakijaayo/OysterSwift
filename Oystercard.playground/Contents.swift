@@ -8,6 +8,8 @@ enum OystercardError: Error {
 class Oystercard {
     var balance = 0
     let MAXIMUM_BALANCE = 90
+    var in_journey = false
+    
     func myBalance() -> Int {
         return balance
     }
@@ -23,6 +25,16 @@ class Oystercard {
     func deduct(money: Int) -> String {
         balance -= money
         return "This has been deducted from the balance of the card"
+    }
+    
+    func touch_in(station: String) -> String {
+        in_journey = true
+        return "You touched in at \(station)"
+    }
+    
+    func touch_out(station: String) -> String {
+        in_journey = false
+        return "You touched out at \(station)"
     }
 }
 
@@ -55,6 +67,19 @@ class OystercardTests: XCTestCase {
         try? sut.top_up(money: 10)
         sut.deduct(money: 5)
         XCTAssertEqual(sut.myBalance(), 5)
+    }
+    
+    func testIfCardInJourney() {
+        sut.touch_in(station: "Aldgate")
+        XCTAssertEqual(sut.in_journey, true)
+    }
+    
+    func testCardIsTouchedIn() {
+        XCTAssertEqual(sut.touch_in(station: "Aldgate"), "You touched in at Aldgate")
+    }
+    
+    func testCardIsTouchedOut() {
+        XCTAssertEqual(sut.touch_out(station: "Aldgate East"), "You touched out at Aldgate East")
     }
 }
 
