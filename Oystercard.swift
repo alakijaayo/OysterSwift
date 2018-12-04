@@ -17,4 +17,9 @@ class Oystercard {
         balance += number
         return "This has been added to the balance of the card"
     }
+    
+    func deduct(money: Int) -> String {
+        balance -= money
+        return "This has been deducted from the balance of the card"
+    }
 }

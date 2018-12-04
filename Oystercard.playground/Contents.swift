@@ -12,12 +12,17 @@ class Oystercard {
         return balance
     }
     
-    func top_up(number: Int) throws -> String {
-        if number > MAXIMUM_BALANCE {
+    func top_up(money: Int) throws -> String {
+        if money > MAXIMUM_BALANCE {
             throw OystercardError.maximumLimit(message: "Maximum balance allowed is £90")
         }
-        balance += number
+        balance += money
         return "This has been added to the balance of the card"
+    }
+    
+    func deduct(money: Int) -> String {
+        balance -= money
+        return "This has been deducted from the balance of the card"
     }
 }
 
@@ -38,12 +43,18 @@ class OystercardTests: XCTestCase {
     }
     
     func testCardBalanceIsToppedUp() {
-        try? sut.top_up(number: 5)
+        try? sut.top_up(money: 5)
         XCTAssertEqual(sut.myBalance(), 5)
     }
     
     func testThrowErrorIfTopUpOverMaximum() {
-        XCTAssertThrowsError(try sut.top_up(number: 91), "Maximum balance allowed is £90")
+        XCTAssertThrowsError(try sut.top_up(money: 91), "Maximum balance allowed is £90")
+    }
+    
+    func testDeductFromBalance() {
+        try? sut.top_up(money: 10)
+        sut.deduct(money: 5)
+        XCTAssertEqual(sut.myBalance(), 5)
     }
 }
 

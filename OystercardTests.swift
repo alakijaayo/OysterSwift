@@ -21,6 +21,12 @@ class OystercardTests: XCTestCase {
     func testThrowErrorIfTopUpOverMaximum() {
         XCTAssertThrowsError(try sut.top_up(number: 91), "Maximum balance allowed is £90")
     }
+    
+    func testDeductFromBalance() {
+        try? sut.top_up(money: 10)
+        sut.deduct(money: 5)
+        XCTAssertEqual(sut.myBalance(), 5)
+    }
 }
 
 OystercardTests.defaultTestSuite.run()
