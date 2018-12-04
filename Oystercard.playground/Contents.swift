@@ -3,11 +3,14 @@ import XCTest
 
 enum OystercardError: Error {
     case maximumLimit(message: String)
+    case minimumLimit(message: String)
+    
 }
 
 class Oystercard {
     var balance = 0
     let MAXIMUM_BALANCE = 90
+    let MINIMUM_BALANCE = 1
     var in_journey = false
     
     func myBalance() -> Int {
@@ -27,7 +30,10 @@ class Oystercard {
         return "This has been deducted from the balance of the card"
     }
     
-    func touch_in(station: String) -> String {
+    func touch_in(station: String) throws -> String {
+        if balance < MINIMUM_BALANCE {
+            throw OystercardError.minimumLimit(message: "Minimum balance on card must be £1")
+        }
         in_journey = true
         return "You touched in at \(station)"
     }
@@ -70,16 +76,21 @@ class OystercardTests: XCTestCase {
     }
     
     func testIfCardInJourney() {
-        sut.touch_in(station: "Aldgate")
+        try? sut.top_up(money: 5)
+        try? sut.touch_in(station: "Aldgate")
         XCTAssertEqual(sut.in_journey, true)
     }
     
     func testCardIsTouchedIn() {
-        XCTAssertEqual(sut.touch_in(station: "Aldgate"), "You touched in at Aldgate")
+        try? sut.top_up(money: 5)
+        XCTAssertEqual(try? sut.touch_in(station: "Aldgate"), "You touched in at Aldgate")
     }
     
     func testCardIsTouchedOut() {
         XCTAssertEqual(sut.touch_out(station: "Aldgate East"), "You touched out at Aldgate East")
+    }
+    func testThrowMinimumBalanceError() {
+        XCTAssertThrowsError(try sut.touch_in(station: "Aldgate"), "Minimum balance on card must be £1")
     }
 }
 

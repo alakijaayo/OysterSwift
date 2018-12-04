@@ -2,11 +2,14 @@ import Foundation
 
 enum OystercardError: Error {
     case maximumLimit(message: String)
+    case minimumLimit(message: String)
+    
 }
 
 class Oystercard {
     var balance = 0
     let MAXIMUM_BALANCE = 90
+    let MINIMUM_BALANCE = 1
     var in_journey = false
     
     func myBalance() -> Int {
@@ -26,7 +29,10 @@ class Oystercard {
         return "This has been deducted from the balance of the card"
     }
     
-    func touch_in(station: String) -> String {
+    func touch_in(station: String) throws -> String {
+        if balance < MINIMUM_BALANCE {
+            throw OystercardError.minimumLimit(message: "Minimum balance on card must be £1")
+        }
         in_journey = true
         return "You touched in at \(station)"
     }
