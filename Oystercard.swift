@@ -39,6 +39,7 @@ class Oystercard {
     
     func touch_out(station: String) -> String {
         in_journey = false
+        self.deduct(money: 1)
         return "You touched out at \(station)"
     }
 }

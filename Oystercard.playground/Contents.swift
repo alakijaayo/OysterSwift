@@ -40,6 +40,7 @@ class Oystercard {
     
     func touch_out(station: String) -> String {
         in_journey = false
+        self.deduct(money: 1)
         return "You touched out at \(station)"
     }
 }
@@ -89,9 +90,17 @@ class OystercardTests: XCTestCase {
     func testCardIsTouchedOut() {
         XCTAssertEqual(sut.touch_out(station: "Aldgate East"), "You touched out at Aldgate East")
     }
+    
     func testThrowMinimumBalanceError() {
         XCTAssertThrowsError(try sut.touch_in(station: "Aldgate"), "Minimum balance on card must be £1")
     }
+    
+    func testMoneyDeductedForFinishedJourney() {
+        try? sut.top_up(money: 5)
+        sut.touch_out(station: "Aldgate")
+        XCTAssertEqual(sut.myBalance(), 4)
+    }
+    
 }
 
 OystercardTests.defaultTestSuite.run()
