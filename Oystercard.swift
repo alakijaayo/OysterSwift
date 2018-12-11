@@ -11,6 +11,7 @@ class Oystercard {
     let MAXIMUM_BALANCE = 90
     let MINIMUM_BALANCE = 1
     var in_journey = false
+    var station_in = [String]()
     
     func myBalance() -> Int {
         return balance
@@ -34,6 +35,7 @@ class Oystercard {
             throw OystercardError.minimumLimit(message: "Minimum balance on card must be £1")
         }
         in_journey = true
+        station_in.append(station)
         return "You touched in at \(station)"
     }
     

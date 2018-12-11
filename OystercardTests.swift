@@ -53,6 +53,10 @@ class OystercardTests: XCTestCase {
         XCTAssertEqual(sut.myBalance(), 4)
     }
     
+    func testStoresStationTouchedin() {
+        try? sut.top_up(money: 5)
+        try? sut.touch_in(station: "Aldgate")
+        XCTAssertEqual(sut.station_in, ["Aldgate"])
+    }
+    
 }
-
-OystercardTests.defaultTestSuite.run()
