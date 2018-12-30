@@ -59,4 +59,19 @@ class OystercardTests: XCTestCase {
         XCTAssertEqual(sut.station_in, ["Aldgate"])
     }
     
+    func testStoresJourneyHistory() {
+        try? sut.top_up(money: 5)
+        try? sut.touch_in(station: "Aldgate")
+        sut.touch_out(station: "Denmark Hill")
+        XCTAssertEqual(sut.journey, ["Entry": "Aldgate", "Exit": "Denmark Hill"])
+    }
+    
+    func testInformsOfJourney() {
+        try? sut.top_up(money: 5)
+        try? sut.touch_in(station: "Aldgate")
+        sut.touch_out(station: "Denmark Hill")
+        XCTAssertEqual(sut.journey_log(), "You started your journey at Aldgate and ended your journey at Denmark Hill")
+    }
+    
 }
+

@@ -13,6 +13,7 @@ class Oystercard {
     let MINIMUM_BALANCE = 1
     var in_journey = false
     var station_in = [String]()
+    var journey: [String: String] = ["Entry": "", "Exit": ""]
     
     func myBalance() -> Int {
         return balance
@@ -37,19 +38,29 @@ class Oystercard {
         }
         in_journey = true
         station_in.append(station)
+        journey["Entry"] = station
         return "You touched in at \(station)"
     }
     
     func touch_out(station: String) -> String {
         in_journey = false
         self.deduct(money: 1)
+        journey["Exit"] = station
         return "You touched out at \(station)"
     }
+    
+    func journey_log() -> String {
+        return "You started your journey at \(journey["Entry"] ?? "nil") and ended your journey at \(journey["Exit"] ?? "nil")"
+    }
+    
 }
 
 let oystercard = Oystercard()
+try? oystercard.top_up(money: 10)
+try? oystercard.touch_in(station: "York")
+oystercard.touch_out(station: "Dulwich")
 print(oystercard.myBalance())
-
+print(oystercard.journey_log())
 
 class OystercardTests: XCTestCase {
     var sut: Oystercard!
@@ -107,6 +118,20 @@ class OystercardTests: XCTestCase {
         try? sut.top_up(money: 5)
         try? sut.touch_in(station: "Aldgate")
         XCTAssertEqual(sut.station_in, ["Aldgate"])
+    }
+    
+    func testStoresJourneyHistory() {
+        try? sut.top_up(money: 5)
+        try? sut.touch_in(station: "Aldgate")
+        sut.touch_out(station: "Denmark Hill")
+        XCTAssertEqual(sut.journey, ["Entry": "Aldgate", "Exit": "Denmark Hill"])
+    }
+    
+    func testInformsOfJourney() {
+        try? sut.top_up(money: 5)
+        try? sut.touch_in(station: "Aldgate")
+        sut.touch_out(station: "Denmark Hill")
+        XCTAssertEqual(sut.journey_log(), "You started your journey at Aldgate and ended your journey at Denmark Hill")
     }
     
 }

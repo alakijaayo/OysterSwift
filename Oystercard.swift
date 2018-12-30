@@ -12,6 +12,7 @@ class Oystercard {
     let MINIMUM_BALANCE = 1
     var in_journey = false
     var station_in = [String]()
+    var journey: [String: String] = ["Entry": "", "Exit": ""]
     
     func myBalance() -> Int {
         return balance
@@ -36,12 +37,19 @@ class Oystercard {
         }
         in_journey = true
         station_in.append(station)
+        journey["Entry"] = station
         return "You touched in at \(station)"
     }
     
     func touch_out(station: String) -> String {
         in_journey = false
         self.deduct(money: 1)
+        journey["Exit"] = station
         return "You touched out at \(station)"
     }
+    
+    func journey_log() -> String {
+        return "You started your journey at \(journey["Entry"] ?? "nil") and ended your journey at \(journey["Exit"] ?? "nil")"
+    }
+    
 }
