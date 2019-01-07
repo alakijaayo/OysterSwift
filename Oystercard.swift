@@ -10,9 +10,7 @@ class Oystercard {
     var balance = 0
     let MAXIMUM_BALANCE = 90
     let MINIMUM_BALANCE = 1
-    var in_journey = false
-    var station_in = [String]()
-    var journey: [String: String] = ["Entry": "", "Exit": ""]
+    var journey = Journey()
     
     func myBalance() -> Int {
         return balance
@@ -34,22 +32,22 @@ class Oystercard {
     func touch_in(station: String) throws -> String {
         if balance < MINIMUM_BALANCE {
             throw OystercardError.minimumLimit(message: "Minimum balance on card must be £1")
+        } else if journey.check_in != nil {
+            self.balance -= journey.fare()
+            return "You have already tapped in at another station, you will be charged a penalty fare."
         }
-        in_journey = true
-        station_in.append(station)
-        journey["Entry"] = station
+        journey.check_in = station
         return "You touched in at \(station)"
     }
     
     func touch_out(station: String) -> String {
-        in_journey = false
-        self.deduct(money: 1)
-        journey["Exit"] = station
+        journey.check_out = station
+        self.balance -= journey.fare()
         return "You touched out at \(station)"
     }
     
     func journey_log() -> String {
-        return "You started your journey at \(journey["Entry"] ?? "nil") and ended your journey at \(journey["Exit"] ?? "nil")"
+        return "You started your journey at \(journey.check_in ?? "nil") station and ended your journey at \(journey.check_out ?? "nil") station"
     }
     
 }

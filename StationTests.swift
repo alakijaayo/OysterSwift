@@ -19,6 +19,8 @@ class StationTests: XCTestCase {
     }
     
     func testInformsOfStationDetails() {
-        XCTAssertEqual(sut.information(name: "Aldgate", zone:1), "This is Aldgate station and it is in zone 1")
+        XCTAssertEqual(sut.information(name: "Aldgate", zone: 1), "This is Aldgate station and it is in zone 1")
     }
 }
+
+StationTests.defaultTestSuite.run()

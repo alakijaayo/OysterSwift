@@ -1,6 +1,33 @@
 import Foundation
 import XCTest
 
+class Journey {
+    var check_in: String?
+    var check_out: String?
+    var paid_fare = 0
+    
+    func tube_in(name: String) -> String {
+        check_in = name
+        return name
+    }
+    
+    func tube_out(name: String) -> String {
+        check_out = name
+        return name
+    }
+    
+    func fare() -> Int {
+        if check_in != nil && check_out != nil {
+            paid_fare = 1
+            return paid_fare
+        } else if check_in != nil || check_out != nil {
+            paid_fare = 6
+            return paid_fare
+        }
+        return paid_fare
+    }
+}
+
 enum OystercardError: Error {
     case maximumLimit(message: String)
     case minimumLimit(message: String)
@@ -11,9 +38,7 @@ class Oystercard {
     var balance = 0
     let MAXIMUM_BALANCE = 90
     let MINIMUM_BALANCE = 1
-    var in_journey = false
-    var station_in = [String]()
-    var journey: [String: String] = ["Entry": "", "Exit": ""]
+    var journey = Journey()
     
     func myBalance() -> Int {
         return balance
@@ -35,32 +60,26 @@ class Oystercard {
     func touch_in(station: String) throws -> String {
         if balance < MINIMUM_BALANCE {
             throw OystercardError.minimumLimit(message: "Minimum balance on card must be £1")
+        } else if journey.check_in != nil {
+            self.balance -= journey.fare()
+            return "You have already tapped in at another station, you will be charged a penalty fare."
         }
-        in_journey = true
-        station_in.append(station)
-        journey["Entry"] = station
+        journey.check_in = station
         return "You touched in at \(station)"
     }
     
     func touch_out(station: String) -> String {
-        in_journey = false
-        self.deduct(money: 1)
-        journey["Exit"] = station
+        journey.check_out = station
+        self.balance -= journey.fare()
         return "You touched out at \(station)"
     }
     
     func journey_log() -> String {
-        return "You started your journey at \(journey["Entry"] ?? "nil") and ended your journey at \(journey["Exit"] ?? "nil")"
+        return "You started your journey at \(journey.check_in ?? "nil") station and ended your journey at \(journey.check_out ?? "nil") station"
     }
     
 }
 
-let oystercard = Oystercard()
-try? oystercard.top_up(money: 10)
-try? oystercard.touch_in(station: "York")
-oystercard.touch_out(station: "Dulwich")
-print(oystercard.myBalance())
-print(oystercard.journey_log())
 
 class OystercardTests: XCTestCase {
     var sut: Oystercard!
@@ -92,7 +111,7 @@ class OystercardTests: XCTestCase {
     func testIfCardInJourney() {
         try? sut.top_up(money: 5)
         try? sut.touch_in(station: "Aldgate")
-        XCTAssertEqual(sut.in_journey, true)
+        XCTAssertEqual(sut.journey.check_in, "Aldgate")
     }
     
     func testCardIsTouchedIn() {
@@ -117,27 +136,61 @@ class OystercardTests: XCTestCase {
     func testStoresStationTouchedin() {
         try? sut.top_up(money: 5)
         try? sut.touch_in(station: "Aldgate")
-        XCTAssertEqual(sut.station_in, ["Aldgate"])
-    }
-    
-    func testStoresJourneyHistory() {
-        try? sut.top_up(money: 5)
-        try? sut.touch_in(station: "Aldgate")
-        sut.touch_out(station: "Denmark Hill")
-        XCTAssertEqual(sut.journey, ["Entry": "Aldgate", "Exit": "Denmark Hill"])
+        XCTAssertEqual(sut.journey.check_in, "Aldgate")
     }
     
     func testInformsOfJourney() {
         try? sut.top_up(money: 5)
         try? sut.touch_in(station: "Aldgate")
         sut.touch_out(station: "Denmark Hill")
-        XCTAssertEqual(sut.journey_log(), "You started your journey at Aldgate and ended your journey at Denmark Hill")
+        XCTAssertEqual(sut.journey_log(), "You started your journey at Aldgate station and ended your journey at Denmark Hill station")
     }
     
 }
 
 OystercardTests.defaultTestSuite.run()
 
+class JourneyTests: XCTestCase {
+    var sut: Journey!
+    
+    override func setUp() {
+        super.setUp()
+        sut = Journey()
+    }
+    
+    func testStoresCheckInStation() {
+        sut.tube_in(name: "Aldgate")
+        XCTAssertEqual(sut.check_in, "Aldgate")
+    }
+    
+    func testStoresCheckOutStation() {
+        sut.tube_out(name: "Elephant & Castle")
+        XCTAssertEqual(sut.check_out, "Elephant & Castle")
+    }
+    
+    func testInformsStationYouCheckedIn() {
+        XCTAssertEqual(sut.tube_in(name: "Elephant & Castle"), "Elephant & Castle")
+    }
+    
+    func testInformsStationYouCheckedOut() {
+        XCTAssertEqual(sut.tube_out(name: "Denmark Hill"), "Denmark Hill")
+    }
+    
+    func testChargesForAJourney() {
+        sut.tube_in(name: "Aldgate")
+        sut.tube_out(name: "Elephant & Castle")
+        sut.fare()
+        XCTAssertEqual(sut.paid_fare, 1)
+    }
+    
+    func testChargesForIncompleteJourney() {
+        sut.tube_out(name: "Elephant & Castle")
+        sut.fare()
+        XCTAssertEqual(sut.paid_fare, 6)
+    }
+}
+
+JourneyTests.defaultTestSuite.run()
 
 class Station {
     var sname: String?
@@ -170,7 +223,7 @@ class StationTests: XCTestCase {
     }
     
     func testInformsOfStationDetails() {
-        XCTAssertEqual(sut.information(name: "Aldgate", zone:1), "This is Aldgate station and it is in zone 1")
+        XCTAssertEqual(sut.information(name: "Aldgate", zone: 1), "This is Aldgate station and it is in zone 1")
     }
 }
 
